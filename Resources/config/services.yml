@@ -1,0 +1,72 @@
+parameters:
+  intention.dependency.injector.entity_manager.class: Algisimu\IntentionBundle\Dependency\Injector\EntityManager
+  intention.dependency.injector.validator.class: Algisimu\IntentionBundle\Dependency\Injector\Validator
+  intention.dependency.injector.paging.class: Algisimu\IntentionBundle\Dependency\Injector\Paging
+  intention.plugin.collection.class: Algisimu\IntentionBundle\Plugin\Collection
+  intention.plugin.parameters_resolver.class: Algisimu\IntentionBundle\Plugin\ParametersResolver
+  intention.plugin.auto_validation.class: Algisimu\IntentionBundle\Plugin\AutoValidation
+  intention.dependencies_manager.class: Algisimu\IntentionBundle\Service\DependenciesManager
+  intention.plugins_manager.class: Algisimu\IntentionBundle\Service\PluginsManager
+  intention.execution_manager.class: Algisimu\IntentionBundle\Service\ExecutionManager
+
+services:
+  # Dependency injector
+  intention.dependency.injector.entity_manager:
+    public: false
+    class: "%intention.dependency.injector.entity_manager.class%"
+    arguments:
+      - "@doctrine.orm.default_entity_manager"
+    tags:
+      -  { name: intention.dependency_injector }
+
+  intention.dependency.injector.validator:
+    public: false
+    class: "%intention.dependency.injector.validator.class%"
+    arguments:
+      - "@validator"
+    tags:
+      -  { name: intention.dependency_injector }
+
+  intention.dependency.injector.paging:
+    public: false
+    class: "%intention.dependency.injector.paging.class%"
+    arguments:
+      - "@request_stack"
+      - 10
+      - 0
+    tags:
+      -  { name: intention.dependency_injector }
+
+  # Plugins
+  intention.plugin.collection:
+    public: false
+    class: "%intention.plugin.collection.class%"
+
+  intention.plugin.parameters_resolver:
+    public: false
+    class: "%intention.plugin.parameters_resolver.class%"
+    tags:
+      -  { name: intention.plugin, priority: 10 }
+
+  intention.plugin.auto_validation:
+    public: false
+    class: "%intention.plugin.auto_validation.class%"
+    tags:
+      -  { name: intention.plugin, priority: 20 }
+
+  # Managers
+  intention.dependencies_manager:
+    public: false
+    class: "%intention.dependencies_manager.class%"
+
+  intention.plugins_manager:
+    public: false
+    class: "%intention.plugins_manager.class%"
+    arguments:
+      - "@intention.plugin.collection"
+
+  intention.execution_manager:
+    class: "%intention.execution_manager.class%"
+    arguments:
+      - "@intention.dependencies_manager"
+      - "@intention.plugins_manager"
